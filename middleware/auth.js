@@ -33,6 +33,10 @@ export const verifyToken = asyncHandler(async (req, res, next) => {
     return next(new AppError('The user belonging to this token no longer exists.', 401));
   }
 
+  if (currentUser.is_blocked) {
+    return next(new AppError('Your account has been suspended. Please contact support.', 403));
+  }
+
   req.user = currentUser;
   next();
 });
@@ -50,3 +54,9 @@ export const adminOnly = (req, res, next) => {
   }
   next();
 };
+
+/**
+ * Middleware: adminAuth
+ * Combined middleware pipeline: verifies token, ensures user is active & role === 'admin'.
+ */
+export const adminAuth = [verifyToken, adminOnly];

@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -44,7 +46,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Admin API Routes
+// Admin API Routes Mounting
+app.use('/api/v1/admin/auth', authRoutes);
+app.use('/api/v1/admin/users', userRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
 // Unhandled Route Handler
@@ -60,10 +64,10 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
 
-export const startServer = async () => {
+export const startServer = async (port = PORT) => {
   await connectDB();
-  return app.listen(PORT, () => {
-    console.log(`Admin Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  return app.listen(port, () => {
+    console.log(`Admin Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`);
   });
 };
 

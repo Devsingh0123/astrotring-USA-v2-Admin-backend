@@ -26,6 +26,7 @@ export const sequelize = new Sequelize(
   }
 );
 
+
 export const connectDB = async () => {
   try {
     await sequelize.authenticate();

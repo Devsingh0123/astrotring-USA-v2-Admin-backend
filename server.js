@@ -5,6 +5,9 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
+import questionPackRoutes from './routes/questionPackRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -49,6 +52,9 @@ app.get('/health', (req, res) => {
 // Admin API Routes Mounting
 app.use('/api/v1/admin/auth', authRoutes);
 app.use('/api/v1/admin/users', userRoutes);
+app.use('/api/v1/admin/orders', orderRoutes);
+app.use('/api/v1/admin/coupons', couponRoutes);
+app.use('/api/v1/admin/question-packs', questionPackRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
 // Unhandled Route Handler

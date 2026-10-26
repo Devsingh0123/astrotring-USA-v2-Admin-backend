@@ -1,5 +1,5 @@
 import express from 'express';
-import { getOrders, getOrderById } from '../controllers/orderController.js';
+import { getOrders, getOrderById, refundOrder } from '../controllers/orderController.js';
 import { adminAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -12,5 +12,8 @@ router.get('/', getOrders);
 
 // GET /api/v1/admin/orders/:id
 router.get('/:id', getOrderById);
+
+// POST /api/v1/admin/orders/:id/refund
+router.post('/:id/refund', refundOrder);
 
 export default router;

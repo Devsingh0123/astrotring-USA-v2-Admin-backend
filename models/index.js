@@ -5,6 +5,8 @@ import { Coupon } from './Coupon.js';
 import { ChatThread } from './ChatThread.js';
 import { BirthDetail } from './BirthDetail.js';
 import { QuestionPack } from './QuestionPack.js';
+import { ReportPack } from './ReportPack.js';
+import { Blog } from './Blog.js';
 
 // User <-> Order
 User.hasMany(Order, { foreignKey: 'user_id', as: 'orders' });
@@ -26,6 +28,10 @@ ChatThread.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 User.hasMany(BirthDetail, { foreignKey: 'user_id', as: 'birth_details' });
 BirthDetail.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+// User <-> Blog
+User.hasMany(Blog, { foreignKey: 'author_id', as: 'blogs' });
+Blog.belongsTo(User, { foreignKey: 'author_id', as: 'author' });
+
 export {
   User,
   Order,
@@ -33,5 +39,7 @@ export {
   Coupon,
   ChatThread,
   BirthDetail,
-  QuestionPack
+  QuestionPack,
+  ReportPack,
+  Blog
 };

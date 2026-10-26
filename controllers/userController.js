@@ -33,6 +33,7 @@ export const getUsers = asyncHandler(async (req, res) => {
       'is_blocked',
       'is_email_verified',
       'onboarding_completed',
+      'createdAt',
       'created_at'
     ],
     limit,
@@ -40,11 +41,19 @@ export const getUsers = asyncHandler(async (req, res) => {
     order: [['created_at', 'DESC']]
   });
 
+  const formattedUsers = rows.map((u) => {
+    const userObj = u.toJSON ? u.toJSON() : u;
+    if (userObj.createdAt && !userObj.created_at) {
+      userObj.created_at = userObj.createdAt;
+    }
+    return userObj;
+  });
+
   res.status(200).json({
     success: true,
     message: 'Users list retrieved',
     data: {
-      users: rows,
+      users: formattedUsers,
       pagination: {
         total: count,
         page,
@@ -96,11 +105,19 @@ export const getUserById = asyncHandler(async (req, res, next) => {
     return next(new AppError('User not found with the provided ID.', 404));
   }
 
+  const userData = user.toJSON();
+  if (userData.createdAt && !userData.created_at) {
+    userData.created_at = userData.createdAt;
+  }
+  if (userData.updatedAt && !userData.updated_at) {
+    userData.updated_at = userData.updatedAt;
+  }
+
   res.status(200).json({
     success: true,
     message: 'User details retrieved',
     data: {
-      user
+      user: userData
     }
   });
 });

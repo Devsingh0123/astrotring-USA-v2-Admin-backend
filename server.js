@@ -8,7 +8,10 @@ import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import questionPackRoutes from './routes/questionPackRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
+import reportPackRoutes from './routes/reportPackRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
+import blogRoutes from './routes/blogRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -36,8 +39,8 @@ app.use(cors({
 }));
 
 // Body parsers
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -55,7 +58,10 @@ app.use('/api/v1/admin/users', userRoutes);
 app.use('/api/v1/admin/orders', orderRoutes);
 app.use('/api/v1/admin/coupons', couponRoutes);
 app.use('/api/v1/admin/question-packs', questionPackRoutes);
-app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/admin/report-packs', reportPackRoutes);
+app.use('/api/v1/admin/dashboard', dashboardRoutes);
+app.use('/api/v1/admin/blogs', blogRoutes);
+app.use('/api/v1/admin/uploads', uploadRoutes);
 
 // Unhandled Route Handler
 app.all('*', (req, res) => {

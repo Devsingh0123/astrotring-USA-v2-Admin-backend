@@ -10,9 +10,7 @@ const INITIAL_REPORT_PACKS = [
     credits: 1,
     prices: {
       INR: { originalPrice: 2999, offerPrice: 1999 },
-      USD: { originalPrice: 29.99, offerPrice: 19.99 },
-      GBP: { originalPrice: 24.99, offerPrice: 16.99 },
-      EUR: { originalPrice: 27.99, offerPrice: 18.99 }
+      USD: { originalPrice: 29.99, offerPrice: 19.99 }
     },
     is_active: true,
     sort_order: 1
@@ -25,9 +23,7 @@ const INITIAL_REPORT_PACKS = [
     credits: 2,
     prices: {
       INR: { originalPrice: 5999, offerPrice: 2299 },
-      USD: { originalPrice: 59.99, offerPrice: 24.99 },
-      GBP: { originalPrice: 49.99, offerPrice: 20.99 },
-      EUR: { originalPrice: 54.99, offerPrice: 22.99 }
+      USD: { originalPrice: 59.99, offerPrice: 24.99 }
     },
     is_active: true,
     sort_order: 2
@@ -40,9 +36,7 @@ const INITIAL_REPORT_PACKS = [
     credits: 4,
     prices: {
       INR: { originalPrice: 11999, offerPrice: 2499 },
-      USD: { originalPrice: 99.99, offerPrice: 29.99 },
-      GBP: { originalPrice: 79.99, offerPrice: 24.99 },
-      EUR: { originalPrice: 89.99, offerPrice: 27.99 }
+      USD: { originalPrice: 99.99, offerPrice: 29.99 }
     },
     is_active: true,
     sort_order: 3

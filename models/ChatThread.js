@@ -25,9 +25,9 @@ export const ChatThread = sequelize.define('ChatThread', {
     allowNull: true
   },
   engine: {
-    type: DataTypes.ENUM('vaani', 'astropedia'),
+    type: DataTypes.ENUM('jyotish', 'shastra'),
     allowNull: false,
-    defaultValue: 'vaani'
+    defaultValue: 'jyotish'
   },
   title: {
     type: DataTypes.STRING(200),

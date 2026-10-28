@@ -1,6 +1,7 @@
 import { ReportPack } from '../models/index.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { validateAndSanitizePrices } from '../utils/validatePrices.js';
 
 /**
  * GET /api/v1/admin/report-packs
@@ -61,14 +62,7 @@ export const createReportPack = asyncHandler(async (req, res, next) => {
     return next(new AppError('credits must be a positive integer greater than 0 (number of report credits).', 400));
   }
 
-  if (!prices || typeof prices !== 'object' || Array.isArray(prices) || Object.keys(prices).length === 0) {
-    return next(
-      new AppError(
-        'prices must be a valid JSON object containing currency pricing (e.g., {"INR": {"offerPrice": 1999, "originalPrice": 2999}}).',
-        400
-      )
-    );
-  }
+  const sanitizedPrices = validateAndSanitizePrices(prices, { requireBoth: true });
 
   // Derive unique code if not explicitly passed
   const cleanName = name.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
@@ -92,7 +86,7 @@ export const createReportPack = asyncHandler(async (req, res, next) => {
     title: title?.trim() || `${name.trim()} Report Pack (${parsedCredits} Report Credit${parsedCredits > 1 ? 's' : ''})`,
     tier: packTier,
     credits: parsedCredits,
-    prices,
+    prices: sanitizedPrices,
     is_active: typeof is_active === 'boolean' ? is_active : true,
     sort_order: parseInt(sort_order, 10) || 0
   });
@@ -147,10 +141,7 @@ export const updateReportPack = asyncHandler(async (req, res, next) => {
   }
 
   if (prices !== undefined) {
-    if (!prices || typeof prices !== 'object' || Array.isArray(prices) || Object.keys(prices).length === 0) {
-      return next(new AppError('prices must be a valid JSON object.', 400));
-    }
-    updates.prices = prices;
+    updates.prices = validateAndSanitizePrices(prices, { requireBoth: false });
   }
 
   if (is_active !== undefined) {

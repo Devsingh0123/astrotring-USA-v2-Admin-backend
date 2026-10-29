@@ -8,7 +8,12 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "create-admin": "node scripts/createAdmin.js",
-    "report-packs": "node scripts/migrateAndSeedReportPacks.js"
+    "migrate-admins": "node scripts/migrateAdminsTable.js",
+    "migrate:admins": "node scripts/migrateAdminsTable.js",
+    "report-packs": "node scripts/migrateAndSeedReportPacks.js",
+    "seed:report-packs": "node scripts/migrateAndSeedReportPacks.js",
+    "remove-user-password": "node scripts/removePasswordFromUsers.js",
+    "migrate:remove-user-password": "node scripts/removePasswordFromUsers.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

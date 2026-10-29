@@ -4,6 +4,7 @@ import { sequelize } from '../config/db.js';
 import { razorpay } from '../config/razorpay.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { buildCsv } from '../utils/csvHelper.js';
 
 /**
  * GET /api/v1/admin/orders
@@ -454,4 +455,141 @@ export const getOrderInvoice = asyncHandler(async (req, res, next) => {
       }
     }
   });
+});
+
+/**
+ * GET /api/v1/admin/orders/export
+ * Exports orders matching filter criteria as RFC 4180 CSV with UTF-8 BOM.
+ */
+export const exportOrders = asyncHandler(async (req, res) => {
+  const { status, currency, product_type, from, to, search } = req.query;
+
+  const whereClause = {};
+
+  if (status) {
+    whereClause.status = status.trim().toLowerCase();
+  }
+
+  if (currency) {
+    whereClause.currency = currency.trim().toUpperCase();
+  }
+
+  if (product_type) {
+    whereClause.product_type = product_type.trim();
+  }
+
+  if (from || to) {
+    whereClause.created_at = {};
+    if (from) {
+      whereClause.created_at[Op.gte] = new Date(from);
+    }
+    if (to) {
+      const toDate = new Date(to);
+      if (!to.includes('T')) {
+        toDate.setHours(23, 59, 59, 999);
+      }
+      whereClause.created_at[Op.lte] = toDate;
+    }
+  }
+
+  if (search) {
+    const trimmed = search.trim();
+    const matchingUsers = await User.findAll({
+      where: {
+        email: { [Op.like]: `%${trimmed}%` }
+      },
+      attributes: ['id']
+    });
+
+    const matchedUserIds = matchingUsers.map((u) => u.id);
+
+    const searchConditions = [
+      { id: { [Op.like]: `%${trimmed}%` } },
+      { razorpay_order_id: { [Op.like]: `%${trimmed}%` } }
+    ];
+
+    if (matchedUserIds.length > 0) {
+      searchConditions.push({ user_id: { [Op.in]: matchedUserIds } });
+    }
+
+    whereClause[Op.or] = searchConditions;
+  }
+
+  const orders = await Order.findAll({
+    where: whereClause,
+    include: [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'email']
+      },
+      {
+        model: Invoice,
+        as: 'invoice',
+        attributes: ['id', 'invoice_number']
+      }
+    ],
+    order: [['created_at', 'DESC']],
+    limit: 50000
+  });
+
+  const headers = [
+    'Order ID',
+    'Created At (UTC)',
+    'User Email',
+    'Product Type',
+    'Product Code',
+    'Item Title',
+    'Credits Granted',
+    'Currency',
+    'Subtotal',
+    'Discount Amount',
+    'Coupon Code',
+    'Taxable Amount',
+    'CGST',
+    'SGST',
+    'IGST',
+    'Tax Amount',
+    'Total Amount',
+    'Status',
+    'Payment Method',
+    'Razorpay Order ID',
+    'Razorpay Payment ID',
+    'Invoice Number'
+  ];
+
+  const rows = orders.map((o) => {
+    return [
+      o.id,
+      o.created_at || o.createdAt,
+      o.user?.email || '',
+      o.product_type,
+      o.product_code,
+      o.item_title,
+      o.credits_to_grant,
+      o.currency,
+      o.subtotal,
+      o.discount_amount,
+      o.coupon_code || '',
+      o.taxable_amount,
+      o.cgst,
+      o.sgst,
+      o.igst,
+      o.tax_amount,
+      o.total_amount,
+      o.status,
+      o.payment_method || '',
+      o.razorpay_order_id || '',
+      o.razorpay_payment_id || '',
+      o.invoice?.invoice_number || ''
+    ];
+  });
+
+  const csvContent = buildCsv(headers, rows);
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const filename = `astrotring-orders-${dateStr}.csv`;
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.status(200).send(csvContent);
 });

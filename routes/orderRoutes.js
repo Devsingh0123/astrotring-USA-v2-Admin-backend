@@ -3,7 +3,8 @@ import {
   getOrders,
   getOrderById,
   getOrderInvoice,
-  refundOrder
+  refundOrder,
+  exportOrders
 } from '../controllers/orderController.js';
 import { adminAuth } from '../middleware/auth.js';
 
@@ -14,6 +15,9 @@ router.use(adminAuth);
 
 // GET /api/v1/admin/orders
 router.get('/', getOrders);
+
+// GET /api/v1/admin/orders/export (Must be before /:id)
+router.get('/export', exportOrders);
 
 // GET /api/v1/admin/orders/:id
 router.get('/:id', getOrderById);

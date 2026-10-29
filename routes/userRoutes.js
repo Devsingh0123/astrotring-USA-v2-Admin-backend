@@ -3,7 +3,8 @@ import {
   getUsers,
   getUserById,
   updateUserStatus,
-  adjustUserCredits
+  adjustUserCredits,
+  exportUsers
 } from '../controllers/userController.js';
 import { adminAuth } from '../middleware/auth.js';
 
@@ -14,6 +15,9 @@ router.use(adminAuth);
 
 // GET /api/v1/admin/users
 router.get('/', getUsers);
+
+// GET /api/v1/admin/users/export (Must be before /:id)
+router.get('/export', exportUsers);
 
 // GET /api/v1/admin/users/:id
 router.get('/:id', getUserById);

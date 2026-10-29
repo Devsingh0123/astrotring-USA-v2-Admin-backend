@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { User, BirthDetail } from '../models/index.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { buildCsv } from '../utils/csvHelper.js';
 
 /**
  * GET /api/v1/admin/users
@@ -227,5 +228,102 @@ export const adjustUserCredits = asyncHandler(async (req, res, next) => {
       }
     }
   });
+});
+
+/**
+ * GET /api/v1/admin/users/export
+ * Exports users matching filter criteria as RFC 4180 CSV with UTF-8 BOM.
+ */
+export const exportUsers = asyncHandler(async (req, res) => {
+  const { tier, is_blocked, is_email_verified, from, to, search } = req.query;
+
+  const whereClause = {};
+
+  if (tier) {
+    whereClause.tier = tier.trim().toLowerCase();
+  }
+
+  if (is_blocked !== undefined) {
+    whereClause.is_blocked = is_blocked === 'true' || is_blocked === true;
+  }
+
+  if (is_email_verified !== undefined) {
+    whereClause.is_email_verified = is_email_verified === 'true' || is_email_verified === true;
+  }
+
+  if (from || to) {
+    whereClause.created_at = {};
+    if (from) {
+      whereClause.created_at[Op.gte] = new Date(from);
+    }
+    if (to) {
+      const toDate = new Date(to);
+      if (!to.includes('T')) {
+        toDate.setHours(23, 59, 59, 999);
+      }
+      whereClause.created_at[Op.lte] = toDate;
+    }
+  }
+
+  if (search) {
+    whereClause.email = {
+      [Op.like]: `%${search.trim()}%`
+    };
+  }
+
+  const users = await User.findAll({
+    where: whereClause,
+    attributes: [
+      'id',
+      'email',
+      'role',
+      'tier',
+      'credit_balance',
+      'report_credits',
+      'is_email_verified',
+      'onboarding_completed',
+      'is_blocked',
+      'created_at',
+      'createdAt'
+    ],
+    order: [['created_at', 'DESC']],
+    limit: 50000
+  });
+
+  const headers = [
+    'User ID',
+    'Email',
+    'Role',
+    'Tier',
+    'Question Balance',
+    'Report Credits',
+    'Email Verified',
+    'Onboarding Completed',
+    'Blocked',
+    'Created At (UTC)'
+  ];
+
+  const rows = users.map((u) => {
+    return [
+      u.id,
+      u.email,
+      u.role,
+      u.tier,
+      u.credit_balance,
+      u.report_credits,
+      u.is_email_verified ? 'Yes' : 'No',
+      u.onboarding_completed ? 'Yes' : 'No',
+      u.is_blocked ? 'Yes' : 'No',
+      u.created_at || u.createdAt
+    ];
+  });
+
+  const csvContent = buildCsv(headers, rows);
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const filename = `astrotring-users-${dateStr}.csv`;
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.status(200).send(csvContent);
 });
 

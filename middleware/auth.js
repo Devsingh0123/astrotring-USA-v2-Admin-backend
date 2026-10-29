@@ -57,6 +57,20 @@ export const adminOnly = (req, res, next) => {
 };
 
 /**
+ * Middleware: superAdminOnly
+ * Ensures the authenticated account has role === 'super_admin'.
+ */
+export const superAdminOnly = (req, res, next) => {
+  if (!req.user || req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Super Administrator privileges required.'
+    });
+  }
+  next();
+};
+
+/**
  * Middleware: adminAuth
  * Combined middleware pipeline: verifies token, ensures admin is active & has admin role.
  */

@@ -13,6 +13,7 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import adminManageRoutes from './routes/adminManageRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -64,6 +65,7 @@ app.use('/api/v1/admin/dashboard', dashboardRoutes);
 app.use('/api/v1/admin/blogs', blogRoutes);
 app.use('/api/v1/admin/uploads', uploadRoutes);
 app.use('/api/v1/admin/chats', chatRoutes);
+app.use('/api/v1/admin/admins', adminManageRoutes);
 
 // Unhandled Route Handler
 app.all('*', (req, res) => {

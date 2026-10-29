@@ -2,7 +2,8 @@ import express from 'express';
 import {
   getUsers,
   getUserById,
-  updateUserStatus
+  updateUserStatus,
+  adjustUserCredits
 } from '../controllers/userController.js';
 import { adminAuth } from '../middleware/auth.js';
 
@@ -19,5 +20,8 @@ router.get('/:id', getUserById);
 
 // PATCH /api/v1/admin/users/:id/status
 router.patch('/:id/status', updateUserStatus);
+
+// PATCH /api/v1/admin/users/:id/credits
+router.patch('/:id/credits', adjustUserCredits);
 
 export default router;

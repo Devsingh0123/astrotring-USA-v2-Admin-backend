@@ -155,3 +155,77 @@ export const updateUserStatus = asyncHandler(async (req, res, next) => {
     }
   });
 });
+
+/**
+ * PATCH /api/v1/admin/users/:id/credits
+ * Manually adjusts question credits (`credit_balance`) or report credits (`report_credits`) for a user.
+ */
+export const adjustUserCredits = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { credit_type = 'questions', action = 'add', amount, reason = '' } = req.body;
+
+  const validTypes = ['questions', 'reports', 'credit_balance', 'report_credits'];
+  const normalizedType = credit_type?.toLowerCase();
+  if (!normalizedType || !validTypes.includes(normalizedType)) {
+    return next(new AppError('Invalid credit_type. Must be "questions" or "reports".', 400));
+  }
+
+  const validActions = ['add', 'deduct', 'credit', 'debit', 'set'];
+  const normalizedAction = action?.toLowerCase();
+  if (!normalizedAction || !validActions.includes(normalizedAction)) {
+    return next(new AppError('Invalid action. Must be "add", "deduct", or "set".', 400));
+  }
+
+  const parsedAmount = parseInt(amount, 10);
+  if (
+    isNaN(parsedAmount) ||
+    (normalizedAction !== 'set' && parsedAmount <= 0) ||
+    (normalizedAction === 'set' && parsedAmount < 0)
+  ) {
+    return next(new AppError('Amount must be a positive integer (or 0 if action is "set").', 400));
+  }
+
+  const user = await User.findByPk(id);
+  if (!user) {
+    return next(new AppError('User not found with the provided ID.', 404));
+  }
+
+  const isQuestionCredit = normalizedType === 'questions' || normalizedType === 'credit_balance';
+  const targetField = isQuestionCredit ? 'credit_balance' : 'report_credits';
+  const previousBalance = user[targetField] || 0;
+  let newBalance = previousBalance;
+
+  if (normalizedAction === 'add' || normalizedAction === 'credit') {
+    newBalance = previousBalance + parsedAmount;
+  } else if (normalizedAction === 'deduct' || normalizedAction === 'debit') {
+    newBalance = Math.max(0, previousBalance - parsedAmount);
+  } else if (normalizedAction === 'set') {
+    newBalance = parsedAmount;
+  }
+
+  await user.update({ [targetField]: newBalance });
+
+  res.status(200).json({
+    success: true,
+    message: `User ${isQuestionCredit ? 'question' : 'report'} credits adjusted successfully`,
+    data: {
+      user: {
+        id: user.id,
+        email: user.email,
+        credit_balance: user.credit_balance,
+        report_credits: user.report_credits,
+        adjustment: {
+          field: targetField,
+          credit_type: isQuestionCredit ? 'questions' : 'reports',
+          action: normalizedAction,
+          amount: parsedAmount,
+          previous_balance: previousBalance,
+          new_balance: newBalance,
+          reason: reason?.trim() || null,
+          adjusted_by: req.user?.email || 'admin'
+        }
+      }
+    }
+  });
+});
+

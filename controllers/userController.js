@@ -73,9 +73,6 @@ export const getUserById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   const user = await User.findByPk(id, {
-    attributes: {
-      exclude: ['password']
-    },
     include: [
       {
         model: BirthDetail,

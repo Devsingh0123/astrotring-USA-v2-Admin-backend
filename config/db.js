@@ -31,6 +31,8 @@ export const connectDB = async () => {
   try {
     await sequelize.authenticate();
     console.log('Admin Backend: MySQL Database connected successfully via Sequelize.');
+
+    await sequelize.sync({ alter: true });
   } catch (error) {
     console.error('Admin Backend: Unable to connect to MySQL database:', error.message);
   }

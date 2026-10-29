@@ -1,5 +1,12 @@
 import express from 'express';
-import { login, getMe, refreshToken } from '../controllers/authController.js';
+import {
+  login,
+  getMe,
+  refreshToken,
+  updateProfile,
+  changePassword,
+  getSystemStatus
+} from '../controllers/authController.js';
 import { adminAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -8,7 +15,12 @@ const router = express.Router();
 router.post('/login', login);
 router.post('/refresh-token', refreshToken);
 
-// Protected current admin profile
-router.get('/me', adminAuth, getMe);
+// Protected routes (require valid admin session)
+router.use(adminAuth);
+
+router.get('/me', getMe);
+router.patch('/profile', updateProfile);
+router.post('/change-password', changePassword);
+router.get('/system-status', getSystemStatus);
 
 export default router;

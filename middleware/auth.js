@@ -1,11 +1,11 @@
 import { verifyAccessToken } from '../utils/jwt.js';
-import { User } from '../models/index.js';
+import { Admin } from '../models/index.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 /**
  * Middleware: verifyToken
- * Validates Bearer access token from Authorization header and attaches the user record.
+ * Validates Bearer access token from Authorization header and attaches the authenticated Admin record.
  */
 export const verifyToken = asyncHandler(async (req, res, next) => {
   let token;
@@ -28,25 +28,26 @@ export const verifyToken = asyncHandler(async (req, res, next) => {
     return next(new AppError('Invalid token. Authorization denied.', 401));
   }
 
-  const currentUser = await User.findByPk(decoded.id);
-  if (!currentUser) {
-    return next(new AppError('The user belonging to this token no longer exists.', 401));
+  const currentAdmin = await Admin.findByPk(decoded.id);
+  if (!currentAdmin) {
+    return next(new AppError('The administrator belonging to this token no longer exists.', 401));
   }
 
-  if (currentUser.is_blocked) {
-    return next(new AppError('Your account has been suspended. Please contact support.', 403));
+  if (currentAdmin.is_blocked) {
+    return next(new AppError('Your administrator account has been suspended. Please contact support.', 403));
   }
 
-  req.user = currentUser;
+  req.user = currentAdmin;
+  req.admin = currentAdmin;
   next();
 });
 
 /**
  * Middleware: adminOnly
- * Ensures the authenticated user has role === 'admin'.
+ * Ensures the authenticated account has role === 'admin' or 'super_admin'.
  */
 export const adminOnly = (req, res, next) => {
-  if (!req.user || req.user.role !== 'admin') {
+  if (!req.user || !['admin', 'super_admin'].includes(req.user.role)) {
     return res.status(403).json({
       success: false,
       message: 'Access denied. Admin privileges required.'
@@ -57,6 +58,6 @@ export const adminOnly = (req, res, next) => {
 
 /**
  * Middleware: adminAuth
- * Combined middleware pipeline: verifies token, ensures user is active & role === 'admin'.
+ * Combined middleware pipeline: verifies token, ensures admin is active & has admin role.
  */
 export const adminAuth = [verifyToken, adminOnly];

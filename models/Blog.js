@@ -17,7 +17,7 @@ export const Blog = sequelize.define('Blog', {
     type: DataTypes.CHAR(36),
     allowNull: false,
     references: {
-      model: 'users',
+      model: 'admins',
       key: 'id'
     }
   },

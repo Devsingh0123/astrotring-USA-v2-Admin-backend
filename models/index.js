@@ -1,4 +1,5 @@
 import { User } from './User.js';
+import { Admin } from './Admin.js';
 import { Order } from './Order.js';
 import { Invoice } from './Invoice.js';
 import { Coupon } from './Coupon.js';
@@ -28,12 +29,13 @@ ChatThread.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 User.hasMany(BirthDetail, { foreignKey: 'user_id', as: 'birth_details' });
 BirthDetail.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
-// User <-> Blog
-User.hasMany(Blog, { foreignKey: 'author_id', as: 'blogs' });
-Blog.belongsTo(User, { foreignKey: 'author_id', as: 'author' });
+// Admin <-> Blog
+Admin.hasMany(Blog, { foreignKey: 'author_id', as: 'blogs' });
+Blog.belongsTo(Admin, { foreignKey: 'author_id', as: 'author' });
 
 export {
   User,
+  Admin,
   Order,
   Invoice,
   Coupon,

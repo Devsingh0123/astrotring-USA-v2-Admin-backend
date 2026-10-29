@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Blog, User } from '../models/index.js';
+import { Blog, Admin } from '../models/index.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
@@ -86,9 +86,9 @@ export const getBlogs = asyncHandler(async (req, res) => {
     where: whereClause,
     include: [
       {
-        model: User,
+        model: Admin,
         as: 'author',
-        attributes: ['id', 'email', 'role']
+        attributes: ['id', 'email', 'name', 'role', 'avatar_url']
       }
     ],
     order: [[sortColumn, sortOrder]],
@@ -127,9 +127,9 @@ export const getBlogById = asyncHandler(async (req, res, next) => {
     where: whereClause,
     include: [
       {
-        model: User,
+        model: Admin,
         as: 'author',
-        attributes: ['id', 'email', 'role']
+        attributes: ['id', 'email', 'name', 'role', 'avatar_url']
       }
     ]
   });
@@ -220,9 +220,9 @@ export const createBlog = asyncHandler(async (req, res, next) => {
   const createdBlog = await Blog.findByPk(blog.id, {
     include: [
       {
-        model: User,
+        model: Admin,
         as: 'author',
-        attributes: ['id', 'email', 'role']
+        attributes: ['id', 'email', 'name', 'role', 'avatar_url']
       }
     ]
   });
@@ -335,9 +335,9 @@ export const updateBlog = asyncHandler(async (req, res, next) => {
   const updatedBlog = await Blog.findByPk(blog.id, {
     include: [
       {
-        model: User,
+        model: Admin,
         as: 'author',
-        attributes: ['id', 'email', 'role']
+        attributes: ['id', 'email', 'name', 'role', 'avatar_url']
       }
     ]
   });

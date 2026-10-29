@@ -1,5 +1,5 @@
 import readline from 'readline';
-import { User } from '../models/index.js';
+import { Admin } from '../models/index.js';
 import { hashPassword } from '../utils/bcrypt.js';
 import { connectDB, sequelize } from '../config/db.js';
 
@@ -16,6 +16,7 @@ const main = async () => {
 
     let email = process.argv[2];
     let password = process.argv[3];
+    let name = process.argv[4];
 
     if (!email) {
       email = await askQuestion('Enter Admin Email: ');
@@ -35,28 +36,24 @@ const main = async () => {
 
     const hashedPassword = await hashPassword(password);
 
-    const existingUser = await User.findOne({ where: { email } });
+    const existingAdmin = await Admin.findOne({ where: { email } });
 
-    if (existingUser) {
-      await existingUser.update({
-        role: 'admin',
+    if (existingAdmin) {
+      await existingAdmin.update({
         password: hashedPassword,
-        is_blocked: false,
-        is_email_verified: true,
-        onboarding_completed: true
+        name: name?.trim() || existingAdmin.name || 'Administrator',
+        is_blocked: false
       });
-      console.log(`\nSuccess: Existing user "${email}" updated to admin role with new password.`);
+      console.log(`\nSuccess: Existing admin "${email}" updated with new password.`);
     } else {
-      const newUser = await User.create({
+      const newAdmin = await Admin.create({
         email,
         password: hashedPassword,
+        name: name?.trim() || 'Administrator',
         role: 'admin',
-        is_email_verified: true,
-        onboarding_completed: true,
-        is_blocked: false,
-        credit_balance: 100
+        is_blocked: false
       });
-      console.log(`\nSuccess: Created new admin user: ${newUser.email} (ID: ${newUser.id})`);
+      console.log(`\nSuccess: Created new administrator: ${newAdmin.email} (ID: ${newAdmin.id})`);
     }
 
     rl.close();

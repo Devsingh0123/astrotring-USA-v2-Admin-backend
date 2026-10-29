@@ -1,4 +1,4 @@
-import { User } from '../models/index.js';
+import { Admin } from '../models/index.js';
 import { comparePassword } from '../utils/bcrypt.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import { AppError } from '../utils/appError.js';
@@ -17,44 +17,46 @@ export const login = asyncHandler(async (req, res, next) => {
 
   const normalizedEmail = email.trim().toLowerCase();
 
-  // Find user by email
-  const user = await User.findOne({ where: { email: normalizedEmail } });
+  // Find admin in dedicated admins table
+  const admin = await Admin.findOne({ where: { email: normalizedEmail } });
 
-  if (!user || user.role !== 'admin') {
+  if (!admin || !['admin', 'super_admin'].includes(admin.role)) {
     return next(new AppError('Invalid email or password.', 401));
   }
 
-  if (user.is_blocked) {
+  if (admin.is_blocked) {
     return next(new AppError('Your administrator account has been suspended.', 403));
   }
 
-  if (!user.password) {
+  if (!admin.password) {
     return next(new AppError('Password has not been configured for this administrator account.', 400));
   }
 
-  const isPasswordValid = await comparePassword(password, user.password);
+  const isPasswordValid = await comparePassword(password, admin.password);
   if (!isPasswordValid) {
     return next(new AppError('Invalid email or password.', 401));
   }
 
   // Generate tokens
   const tokenPayload = {
-    id: user.id,
-    email: user.email,
-    role: user.role
+    id: admin.id,
+    email: admin.email,
+    role: admin.role
   };
 
   const accessToken = generateAccessToken(tokenPayload);
-  const refreshToken = generateRefreshToken({ id: user.id });
+  const refreshToken = generateRefreshToken({ id: admin.id });
 
   res.status(200).json({
     success: true,
     message: 'Admin logged in successfully',
     data: {
       admin: {
-        id: user.id,
-        email: user.email,
-        role: user.role
+        id: admin.id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+        avatar_url: admin.avatar_url
       },
       accessToken,
       refreshToken
@@ -80,20 +82,20 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
     return next(new AppError('Invalid or expired refresh token. Please sign in again.', 401));
   }
 
-  const user = await User.findByPk(decoded.id);
+  const admin = await Admin.findByPk(decoded.id);
 
-  if (!user || user.role !== 'admin') {
+  if (!admin || !['admin', 'super_admin'].includes(admin.role)) {
     return next(new AppError('Administrator account not found or access denied.', 401));
   }
 
-  if (user.is_blocked) {
+  if (admin.is_blocked) {
     return next(new AppError('Your administrator account has been suspended.', 403));
   }
 
   const tokenPayload = {
-    id: user.id,
-    email: user.email,
-    role: user.role
+    id: admin.id,
+    email: admin.email,
+    role: admin.role
   };
 
   const newAccessToken = generateAccessToken(tokenPayload);
@@ -119,7 +121,9 @@ export const getMe = asyncHandler(async (req, res) => {
       admin: {
         id: req.user.id,
         email: req.user.email,
+        name: req.user.name,
         role: req.user.role,
+        avatar_url: req.user.avatar_url,
         created_at: req.user.created_at
       }
     }

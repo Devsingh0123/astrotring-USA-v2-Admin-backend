@@ -141,7 +141,7 @@ export const updateUserStatus = asyncHandler(async (req, res, next) => {
   }
 
   // Prevent admin from blocking their own account
-  if (req.user.id === user.id && is_blocked) {
+  if ((req.user.id === user.id || req.user.email === user.email) && is_blocked) {
     return next(new AppError('You cannot suspend your own administrator account.', 400));
   }
 

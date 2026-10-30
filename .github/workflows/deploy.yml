@@ -1,4 +1,4 @@
-name: Deploy Japaika Admin Backend
+name: Deploy Admin Backend
 
 on:
   push:

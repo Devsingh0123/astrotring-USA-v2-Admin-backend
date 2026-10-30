@@ -4,7 +4,6 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '.
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { sequelize } from '../config/db.js';
-import { BRAND } from '../config/brand.js';
 
 /**
  * POST /api/v1/admin/auth/login
@@ -229,8 +228,7 @@ export const getSystemStatus = asyncHandler(async (req, res) => {
     success: true,
     message: 'System status retrieved',
     data: {
-      service: BRAND.SERVICE_NAME,
-      brand: BRAND.NAME,
+      service: 'japaika-admin-backend',
       environment: process.env.NODE_ENV || 'development',
       node_version: process.version,
       uptime_seconds: Math.floor(process.uptime()),

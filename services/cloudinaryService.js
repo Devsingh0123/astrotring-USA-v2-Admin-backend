@@ -1,5 +1,4 @@
 import { cloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
-import { BRAND } from '../config/brand.js';
 import { AppError } from '../utils/appError.js';
 
 /**
@@ -38,7 +37,7 @@ export const uploadToCloudinary = (fileInput, options = {}) => {
   }
 
   const uploadOptions = {
-    folder: options.folder || `${BRAND.CLOUDINARY_ROOT}/blogs`,
+    folder: options.folder || 'japaika/blogs',
     resource_type: options.resource_type || 'auto',
     ...(options.public_id && { public_id: options.public_id }),
     ...(options.transformation && { transformation: options.transformation })

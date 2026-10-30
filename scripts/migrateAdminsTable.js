@@ -51,11 +51,11 @@ async function migrateAdmins() {
     console.log('✓ `admins` table verified with utf8mb4_bin primary key and password column.');
 
     console.log('\n--- Step 2: Syncing admin records and passwords ---');
-    // If any admin record has placeholder or empty password, set to valid fallback bcrypt hash
+    // If admin has placeholder or empty password, set to valid bcrypt hash
     await sequelize.query(`
       UPDATE \`admins\`
       SET \`password\` = '$2b$12$0XCzRebNJ032tbYDePQ./.bqPidXRDzZw9VjkcV5ujI8p/Ea.V/Pa'
-      WHERE \`password\` IS NULL OR \`password\` = '';
+      WHERE \`email\` = 'admin@japaika.com' AND (\`password\` IS NULL OR \`password\` = '');
     `);
     console.log('✓ Verified admin account password hash.');
 

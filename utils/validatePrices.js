@@ -1,5 +1,4 @@
 import { AppError } from './appError.js';
-import { BRAND } from '../config/brand.js';
 
 export const ALLOWED_CURRENCIES = ['INR', 'USD'];
 
@@ -25,7 +24,7 @@ export function validateAndSanitizePrices(prices, { requireBoth = false } = {}) 
   const invalidKeys = keys.filter((k) => !ALLOWED_CURRENCIES.includes(k));
   if (invalidKeys.length > 0) {
     throw new AppError(
-      `Unsupported currency provided: ${invalidKeys.join(', ')}. ${BRAND.NAME} strictly supports only 'INR' and 'USD'.`,
+      `Unsupported currency provided: ${invalidKeys.join(', ')}. Japaika strictly supports only 'INR' and 'USD'.`,
       400
     );
   }

@@ -2,7 +2,6 @@ import { Op } from 'sequelize';
 import { Order, User, Invoice } from '../models/index.js';
 import { sequelize } from '../config/db.js';
 import { razorpay } from '../config/razorpay.js';
-import { BRAND } from '../config/brand.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { buildCsv } from '../utils/csvHelper.js';
@@ -252,7 +251,7 @@ export const refundOrder = asyncHandler(async (req, res, next) => {
 /**
  * Helper: Generates self-contained, print-ready HTML tax invoice.
  */
-export function generateInvoiceHtml(invoice, order) {
+function generateInvoiceHtml(invoice, order) {
   const isPaid = invoice.status === 'PAID';
   const statusColor = isPaid ? '#10b981' : invoice.status === 'REFUNDED' ? '#ef4444' : '#f59e0b';
   const symbol = invoice.currency === 'USD' ? '$' : '₹';
@@ -261,7 +260,7 @@ export function generateInvoiceHtml(invoice, order) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${BRAND.NAME} Tax Invoice - ${invoice.invoice_number}</title>
+  <title>Tax Invoice - ${invoice.invoice_number}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -307,9 +306,9 @@ export function generateInvoiceHtml(invoice, order) {
   <div class="invoice-card">
     <div class="header">
       <div>
-        <div class="brand-title">${BRAND.NAME}</div>
-        <div class="brand-sub">${BRAND.TAGLINE}</div>
-        <div class="brand-sub">${BRAND.SUPPORT_EMAIL} | ${BRAND.USER_FRONTEND_DOMAIN}</div>
+        <div class="brand-title">Japaika</div>
+        <div class="brand-sub">Vedic Astrological Intelligence Platform</div>
+        <div class="brand-sub">support@japaika.com | japaika.com</div>
       </div>
       <div class="invoice-tag">
         <div class="invoice-title">TAX INVOICE</div>
@@ -399,7 +398,7 @@ export function generateInvoiceHtml(invoice, order) {
 
     <div class="footer">
       <p>This is a computer-generated tax invoice. No signature is required.</p>
-      <p>Thank you for choosing ${BRAND.NAME} for your Vedic astrological guidance.</p>
+      <p>Thank you for choosing Japaika for your Vedic astrological guidance.</p>
     </div>
   </div>
 </body>
@@ -588,7 +587,7 @@ export const exportOrders = asyncHandler(async (req, res) => {
 
   const csvContent = buildCsv(headers, rows);
   const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `${BRAND.SLUG}-orders-${dateStr}.csv`;
+  const filename = `japaika-orders-${dateStr}.csv`;
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

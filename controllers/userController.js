@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 import { User, BirthDetail } from '../models/index.js';
-import { BRAND } from '../config/brand.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { buildCsv } from '../utils/csvHelper.js';
@@ -321,7 +320,7 @@ export const exportUsers = asyncHandler(async (req, res) => {
 
   const csvContent = buildCsv(headers, rows);
   const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `${BRAND.SLUG}-users-${dateStr}.csv`;
+  const filename = `japaika-users-${dateStr}.csv`;
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

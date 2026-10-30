@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
+import { BRAND } from './config/brand.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -23,21 +24,32 @@ const app = express();
 // Security HTTP headers
 app.use(helmet());
 
-// CORS configuration - allow admin frontend origin
-const allowedOrigins = [
-  process.env.ADMIN_FRONTEND_URL || 'http://localhost:5174',
-  'http://localhost:5173'
-];
+// CORS configuration - allow Japaika admin frontend & local dev origins
+const envOrigins = (process.env.ADMIN_FRONTEND_URL || '')
+  .split(',')
+  .map((o) => o.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const allowedOrigins = Array.from(
+  new Set([
+    ...envOrigins,
+    'https://admin.japaika.com',
+    'http://localhost:5174',
+    'http://localhost:5173'
+  ])
+);
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (e.g., mobile apps, curl, postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+    const normalizedOrigin = origin?.replace(/\/+$/, '');
+    if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
     return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['Content-Disposition']
 }));
 
 // Body parsers
@@ -48,7 +60,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    service: 'admin-backend',
+    service: BRAND.SERVICE_NAME,
+    brand: BRAND.NAME,
     port: process.env.PORT || 5001,
     timestamp: new Date().toISOString()
   });
@@ -83,7 +96,7 @@ const PORT = process.env.PORT || 5001;
 export const startServer = async (port = PORT) => {
   await connectDB();
   return app.listen(port, () => {
-    console.log(`Admin Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`);
+    console.log(`${BRAND.NAME} Admin Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`);
   });
 };
 

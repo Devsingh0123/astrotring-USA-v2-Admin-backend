@@ -1,5 +1,6 @@
 import readline from 'readline';
 import { Admin } from '../models/index.js';
+import { BRAND } from '../config/brand.js';
 import { hashPassword } from '../utils/bcrypt.js';
 import { connectDB, sequelize } from '../config/db.js';
 
@@ -41,7 +42,7 @@ const main = async () => {
     if (existingAdmin) {
       await existingAdmin.update({
         password: hashedPassword,
-        name: name?.trim() || existingAdmin.name || 'Administrator',
+        name: name?.trim() || existingAdmin.name || BRAND.DEFAULT_ADMIN_NAME,
         is_blocked: false
       });
       console.log(`\nSuccess: Existing admin "${email}" updated with new password.`);
@@ -49,7 +50,7 @@ const main = async () => {
       const newAdmin = await Admin.create({
         email,
         password: hashedPassword,
-        name: name?.trim() || 'Administrator',
+        name: name?.trim() || BRAND.DEFAULT_ADMIN_NAME,
         role: 'admin',
         is_blocked: false
       });

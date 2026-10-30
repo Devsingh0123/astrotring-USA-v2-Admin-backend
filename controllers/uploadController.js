@@ -1,17 +1,20 @@
 import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinaryService.js';
+import { BRAND } from '../config/brand.js';
 import { AppError } from '../utils/appError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 /**
  * Reusable helper to clean and scope the Cloudinary destination folder.
  */
-const sanitizeFolder = (folderInput, defaultFolder = 'astrotring/blogs') => {
+export const sanitizeFolder = (folderInput, defaultFolder = `${BRAND.CLOUDINARY_ROOT}/blogs`) => {
   if (!folderInput || typeof folderInput !== 'string') {
     return defaultFolder;
   }
   const clean = folderInput.trim().replace(/[^a-zA-Z0-9_\-\/]/g, '');
   if (!clean) return defaultFolder;
-  return clean.startsWith('astrotring/') ? clean : `astrotring/${clean}`;
+  return clean.startsWith(`${BRAND.CLOUDINARY_ROOT}/`)
+    ? clean
+    : `${BRAND.CLOUDINARY_ROOT}/${clean}`;
 };
 
 /**
@@ -23,7 +26,7 @@ export const uploadFile = asyncHandler(async (req, res, next) => {
     return next(new AppError('No file provided. Please attach a file under the "file" form field.', 400));
   }
 
-  const folder = sanitizeFolder(req.body?.folder, 'astrotring/blogs');
+  const folder = sanitizeFolder(req.body?.folder, `${BRAND.CLOUDINARY_ROOT}/blogs`);
 
   const result = await uploadToCloudinary(req.file.buffer, {
     folder,
@@ -52,7 +55,7 @@ export const uploadMultipleFiles = asyncHandler(async (req, res, next) => {
     return next(new AppError('No files provided. Please attach files under the "files" form field.', 400));
   }
 
-  const folder = sanitizeFolder(req.body?.folder, 'astrotring/media');
+  const folder = sanitizeFolder(req.body?.folder, `${BRAND.CLOUDINARY_ROOT}/media`);
 
   const uploadedFiles = await Promise.all(
     req.files.map(async (file) => {

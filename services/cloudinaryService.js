@@ -1,10 +1,11 @@
 import { cloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
+import { BRAND } from '../config/brand.js';
 import { AppError } from '../utils/appError.js';
 
 /**
  * Helper to safely extract Cloudinary public_id from a full URL or raw ID.
- * Example URL: https://res.cloudinary.com/demo/image/upload/v1729930000/astrotring/blogs/saturn.png
- * Extracted ID: astrotring/blogs/saturn
+ * Example URL: https://res.cloudinary.com/demo/image/upload/v1729930000/japaika/blogs/saturn.png
+ * Extracted ID: japaika/blogs/saturn
  */
 export const extractPublicId = (publicIdOrUrl) => {
   if (!publicIdOrUrl || typeof publicIdOrUrl !== 'string') return '';
@@ -37,7 +38,7 @@ export const uploadToCloudinary = (fileInput, options = {}) => {
   }
 
   const uploadOptions = {
-    folder: options.folder || 'astrotring/blogs',
+    folder: options.folder || `${BRAND.CLOUDINARY_ROOT}/blogs`,
     resource_type: options.resource_type || 'auto',
     ...(options.public_id && { public_id: options.public_id }),
     ...(options.transformation && { transformation: options.transformation })

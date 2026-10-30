@@ -1,7 +1,7 @@
 {
-  "name": "astrotring-admin-backend",
+  "name": "japaika-admin-backend",
   "version": "1.0.0",
-  "description": "AstroTring Admin Backend Service",
+  "description": "Japaika Admin Backend Service",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -10,7 +10,6 @@
     "create-admin": "node scripts/createAdmin.js",
     "migrate-admins": "node scripts/migrateAdminsTable.js",
     "report-packs": "node scripts/migrateAndSeedReportPacks.js",
-    "seed:report-packs": "node scripts/migrateAndSeedReportPacks.js",
     "remove-user-password": "node scripts/removePasswordFromUsers.js"
   },
   "dependencies": {

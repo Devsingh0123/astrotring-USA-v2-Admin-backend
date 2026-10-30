@@ -1,4 +1,4 @@
-name: Deploy Admin Backend
+name: Deploy Japaika Admin Backend
 
 on:
   push:
@@ -24,4 +24,4 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: /admin-backend-melooha/
+          server-dir: /admin-backend-japaika/
